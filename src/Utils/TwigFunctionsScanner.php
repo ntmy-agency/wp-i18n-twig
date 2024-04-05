@@ -4,10 +4,9 @@ namespace Timber\WpI18nTwig\Utils;
 
 use ReflectionClass;
 use Timber\WpI18nTwig\Twig\NodeVisitor\TranslationNodeVisitor;
-use Timber\WpI18nTwig\Twig\TolerantTwigEnvironment;
+use Timber\WpI18nTwig\Twig\StubbedEnvironment;
 use Twig\Error\SyntaxError;
 use Twig\Lexer;
-use Twig\Loader\ArrayLoader;
 use Twig\Source;
 use WP_CLI\I18n\PhpFunctionsScanner;
 
@@ -16,14 +15,7 @@ class TwigFunctionsScanner extends PhpFunctionsScanner {
 	protected $functions = [];
 
 	public function __construct( $code ) {
-		$twig = new TolerantTwigEnvironment(
-			new ArrayLoader( [] ),
-			[
-				'cache'         => false,
-				'autoescape'    => false,
-				'optimizations' => 0,
-			]
-		);
+		$twig = new StubbedEnvironment();
 
 		if ( ! class_exists( 'Twig\i18nLexer' ) ) {
 			// Dirty hack to make all lexer methods/properties public and grab Twig comments.

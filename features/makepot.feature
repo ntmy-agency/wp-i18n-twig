@@ -305,3 +305,24 @@ Feature: Generate a POT file of a WordPress project
       """
       msgid "Foo"
       """
+
+  Scenario: Handle Twig tests
+    Given an empty foo-theme directory
+    And a foo-theme/views/index.twig file:
+      """
+        {% if form is same as(true) %}
+          {{ __( 'Foo', 'foo-theme' ) }}
+        {% endif %}
+        {% if number is divisible by(3) %}
+          {{ __( 'Bar', 'foo-theme' ) }}
+        {% endif %}
+      """
+    When I run `wp i18n make-pot foo-theme`
+    Then the foo-theme/foo-theme.pot file should contain:
+      """
+      msgid "Foo"
+      """
+    And the foo-theme/foo-theme.pot file should contain:
+      """
+      msgid "Bar"
+      """
