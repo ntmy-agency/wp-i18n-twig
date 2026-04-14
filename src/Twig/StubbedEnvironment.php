@@ -13,6 +13,7 @@ use Symfony\UX\TwigComponent\Twig\PropsTokenParser;
 use Twig\Environment;
 use Twig\Extension\ExtensionInterface;
 use Twig\Extra\Cache\TokenParser\CacheTokenParser;
+use Twig\Lexer;
 use Twig\Loader\ArrayLoader;
 use Twig\NodeVisitor\NodeVisitorInterface;
 use Twig\TokenParser\TokenParserInterface;
@@ -70,6 +71,11 @@ final class StubbedEnvironment extends Environment {
 	 * callable(StubbedEnvironment): Lexer
 	 */
 	private static $optional_lexer_factory = null;
+
+	/**
+	 * @var bool
+	 */
+	private static $built_in_optional_dependencies_registered = false;
 
 	/**
 	 * @param ExtensionInterface[]   $custom_twig_extensions
@@ -175,11 +181,47 @@ final class StubbedEnvironment extends Environment {
 		self::$optional_lexer_factory = $lexer_factory;
 	}
 
+	public static function registerBuiltInOptionalDependencies(): void {
+		if ( self::$built_in_optional_dependencies_registered ) {
+			return;
+		}
+
+		self::registerOptionalTokenParsers(
+			[
+				DumpTokenParser::class,
+				FormThemeTokenParser::class,
+				TransDefaultDomainTokenParser::class,
+				TransTokenParser::class,
+				CacheTokenParser::class,
+				PropsTokenParser::class,
+			]
+		);
+
+		if ( class_exists( StopwatchTokenParser::class ) ) {
+			self::registerOptionalTokenParser( new StopwatchTokenParser( true ) );
+		}
+
+		if ( class_exists( TwigComponentTokenParser::class ) && class_exists( ComponentTokenParser::class ) ) {
+			self::registerOptionalTokenParser( new ComponentTokenParser() );
+		}
+
+		if ( class_exists( ComponentLexer::class ) ) {
+			self::registerOptionalLexerFactory(
+				static function ( StubbedEnvironment $environment ): Lexer {
+					return new ComponentLexer( $environment );
+				}
+			);
+		}
+
+		self::$built_in_optional_dependencies_registered = true;
+	}
+
 	public static function resetOptionalDependencies(): void {
 		self::$optional_token_parsers = [];
 		self::$optional_extensions = [];
 		self::$optional_node_visitors = [];
 		self::$optional_lexer_factory = null;
+		self::$built_in_optional_dependencies_registered = false;
 	}
 
 	/**
@@ -225,42 +267,7 @@ final class StubbedEnvironment extends Environment {
 	}
 
 	private function handleOptionalDependencies(): void {
-		if ( class_exists( DumpTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new DumpTokenParser() );
-		}
-		if ( class_exists( FormThemeTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new FormThemeTokenParser() );
-		}
-		if ( class_exists( StopwatchTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new StopwatchTokenParser( true ) );
-		}
-		if ( class_exists( TransDefaultDomainTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new TransDefaultDomainTokenParser() );
-		}
-		if ( class_exists( TransTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new TransTokenParser() );
-		}
-		if ( class_exists( CacheTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new CacheTokenParser() );
-		}
-		if ( class_exists( TwigComponentTokenParser::class ) && class_exists( ComponentTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new ComponentTokenParser() );
-		}
-		if ( class_exists( PropsTokenParser::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->addTokenParser( new PropsTokenParser() );
-		}
-		if ( class_exists( ComponentLexer::class ) ) {
-			// @phpstan-ignore argument.type
-			$this->setLexer( new ComponentLexer( $this ) );
-		}
+		self::registerBuiltInOptionalDependencies();
 
 		foreach ( self::$optional_extensions as $extension ) {
 			$extension = $this->resolveOptionalExtension( $extension );
@@ -274,6 +281,7 @@ final class StubbedEnvironment extends Environment {
 			$token_parser = $this->resolveOptionalTokenParser( $token_parser );
 
 			if ( $token_parser instanceof TokenParserInterface ) {
+				// @phpstan-ignore argument.type
 				$this->addTokenParser( $token_parser );
 			}
 		}
@@ -282,6 +290,7 @@ final class StubbedEnvironment extends Environment {
 			$node_visitor = $this->resolveOptionalNodeVisitor( $node_visitor );
 
 			if ( $node_visitor instanceof NodeVisitorInterface ) {
+				// @phpstan-ignore argument.type
 				$this->addNodeVisitor( $node_visitor );
 			}
 		}
@@ -290,6 +299,7 @@ final class StubbedEnvironment extends Environment {
 			$lexer = \call_user_func( self::$optional_lexer_factory, $this );
 
 			if ( $lexer instanceof Lexer ) {
+				// @phpstan-ignore argument.type
 				$this->setLexer( $lexer );
 			}
 		}
