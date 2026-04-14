@@ -123,55 +123,55 @@ final class StubbedEnvironment extends Environment {
 	/**
 	 * @param TokenParserInterface|string $token_parser
 	 */
-	public static function registerOptionalTokenParser($token_parser): void {
-		self::registerUnique(self::$optional_token_parsers, $token_parser);
+	public static function registerOptionalTokenParser( $token_parser ): void {
+		self::registerUnique( self::$optional_token_parsers, $token_parser );
 	}
 
 	/**
 	 * @param array<int, TokenParserInterface|string> $token_parsers
 	 */
-	public static function registerOptionalTokenParsers(array $token_parsers): void {
-		foreach ($token_parsers as $token_parser) {
-			self::registerOptionalTokenParser($token_parser);
+	public static function registerOptionalTokenParsers( array $token_parsers ): void {
+		foreach ( $token_parsers as $token_parser ) {
+			self::registerOptionalTokenParser( $token_parser );
 		}
 	}
 
 	/**
 	 * @param ExtensionInterface|string $extension
 	 */
-	public static function registerOptionalExtension($extension): void {
-		self::registerUnique(self::$optional_extensions, $extension);
+	public static function registerOptionalExtension( $extension ): void {
+		self::registerUnique( self::$optional_extensions, $extension );
 	}
 
 	/**
 	 * @param array<int, ExtensionInterface|string> $extensions
 	 */
-	public static function registerOptionalExtensions(array $extensions): void {
-		foreach ($extensions as $extension) {
-			self::registerOptionalExtension($extension);
+	public static function registerOptionalExtensions( array $extensions ): void {
+		foreach ( $extensions as $extension ) {
+			self::registerOptionalExtension( $extension );
 		}
 	}
 
 	/**
 	 * @param NodeVisitorInterface|string $node_visitor
 	 */
-	public static function registerOptionalNodeVisitor($node_visitor): void {
-		self::registerUnique(self::$optional_node_visitors, $node_visitor);
+	public static function registerOptionalNodeVisitor( $node_visitor ): void {
+		self::registerUnique( self::$optional_node_visitors, $node_visitor );
 	}
 
 	/**
 	 * @param array<int, NodeVisitorInterface|string> $node_visitors
 	 */
-	public static function registerOptionalNodeVisitors(array $node_visitors): void {
-		foreach ($node_visitors as $node_visitor) {
-			self::registerOptionalNodeVisitor($node_visitor);
+	public static function registerOptionalNodeVisitors( array $node_visitors ): void {
+		foreach ( $node_visitors as $node_visitor ) {
+			self::registerOptionalNodeVisitor( $node_visitor );
 		}
 	}
 
 	/**
 	 * @param callable $lexer_factory callable(StubbedEnvironment): Lexer
 	 */
-	public static function registerOptionalLexerFactory(callable $lexer_factory): void {
+	public static function registerOptionalLexerFactory( callable $lexer_factory ): void {
 		self::$optional_lexer_factory = $lexer_factory;
 	}
 
@@ -262,35 +262,35 @@ final class StubbedEnvironment extends Environment {
 			$this->setLexer( new ComponentLexer( $this ) );
 		}
 
-		foreach (self::$optional_extensions as $extension) {
-			$extension = $this->resolveOptionalExtension($extension);
+		foreach ( self::$optional_extensions as $extension ) {
+			$extension = $this->resolveOptionalExtension( $extension );
 
-			if ($extension instanceof ExtensionInterface) {
-				$this->addExtension($extension);
+			if ( $extension instanceof ExtensionInterface ) {
+				$this->addExtension( $extension );
 			}
 		}
 
-		foreach (self::$optional_token_parsers as $token_parser) {
-			$token_parser = $this->resolveOptionalTokenParser($token_parser);
+		foreach ( self::$optional_token_parsers as $token_parser ) {
+			$token_parser = $this->resolveOptionalTokenParser( $token_parser );
 
-			if ($token_parser instanceof TokenParserInterface) {
-				$this->addTokenParser($token_parser);
+			if ( $token_parser instanceof TokenParserInterface ) {
+				$this->addTokenParser( $token_parser );
 			}
 		}
 
-		foreach (self::$optional_node_visitors as $node_visitor) {
-			$node_visitor = $this->resolveOptionalNodeVisitor($node_visitor);
+		foreach ( self::$optional_node_visitors as $node_visitor ) {
+			$node_visitor = $this->resolveOptionalNodeVisitor( $node_visitor );
 
-			if ($node_visitor instanceof NodeVisitorInterface) {
-				$this->addNodeVisitor($node_visitor);
+			if ( $node_visitor instanceof NodeVisitorInterface ) {
+				$this->addNodeVisitor( $node_visitor );
 			}
 		}
 
-		if (\is_callable(self::$optional_lexer_factory)) {
-			$lexer = \call_user_func(self::$optional_lexer_factory, $this);
+		if ( \is_callable( self::$optional_lexer_factory ) ) {
+			$lexer = \call_user_func( self::$optional_lexer_factory, $this );
 
-			if ($lexer instanceof Lexer) {
-				$this->setLexer($lexer);
+			if ( $lexer instanceof Lexer ) {
+				$this->setLexer( $lexer );
 			}
 		}
 	}
@@ -300,15 +300,15 @@ final class StubbedEnvironment extends Environment {
 	 *
 	 * @return ExtensionInterface|null
 	 */
-	private function resolveOptionalExtension($extension): ?ExtensionInterface {
-		if ($extension instanceof ExtensionInterface) {
+	private function resolveOptionalExtension( $extension ): ?ExtensionInterface {
+		if ( $extension instanceof ExtensionInterface ) {
 			return $extension;
 		}
 
-		if (\is_string($extension) && class_exists($extension)) {
+		if ( \is_string( $extension ) && class_exists( $extension ) ) {
 			$extension = new $extension();
 
-			if ($extension instanceof ExtensionInterface) {
+			if ( $extension instanceof ExtensionInterface ) {
 				return $extension;
 			}
 		}
@@ -321,15 +321,15 @@ final class StubbedEnvironment extends Environment {
 	 *
 	 * @return TokenParserInterface|null
 	 */
-	private function resolveOptionalTokenParser($token_parser): ?TokenParserInterface {
-		if ($token_parser instanceof TokenParserInterface) {
+	private function resolveOptionalTokenParser( $token_parser ): ?TokenParserInterface {
+		if ( $token_parser instanceof TokenParserInterface ) {
 			return $token_parser;
 		}
 
-		if (\is_string($token_parser) && class_exists($token_parser)) {
+		if ( \is_string( $token_parser ) && class_exists( $token_parser ) ) {
 			$token_parser = new $token_parser();
 
-			if ($token_parser instanceof TokenParserInterface) {
+			if ( $token_parser instanceof TokenParserInterface ) {
 				return $token_parser;
 			}
 		}
@@ -342,15 +342,15 @@ final class StubbedEnvironment extends Environment {
 	 *
 	 * @return NodeVisitorInterface|null
 	 */
-	private function resolveOptionalNodeVisitor($node_visitor): ?NodeVisitorInterface {
-		if ($node_visitor instanceof NodeVisitorInterface) {
+	private function resolveOptionalNodeVisitor( $node_visitor ): ?NodeVisitorInterface {
+		if ( $node_visitor instanceof NodeVisitorInterface ) {
 			return $node_visitor;
 		}
 
-		if (\is_string($node_visitor) && class_exists($node_visitor)) {
+		if ( \is_string( $node_visitor ) && class_exists( $node_visitor ) ) {
 			$node_visitor = new $node_visitor();
 
-			if ($node_visitor instanceof NodeVisitorInterface) {
+			if ( $node_visitor instanceof NodeVisitorInterface ) {
 				return $node_visitor;
 			}
 		}
@@ -362,17 +362,17 @@ final class StubbedEnvironment extends Environment {
 	 * @param array<int, mixed> $registry
 	 * @param mixed             $value
 	 */
-	private static function registerUnique(array &$registry, $value): void {
-		foreach ($registry as $registered) {
-			if ($registered === $value) {
+	private static function registerUnique( array &$registry, $value ): void {
+		foreach ( $registry as $registered ) {
+			if ( $registered === $value ) {
 				return;
 			}
 
-			if (\is_string($registered) && \is_string($value) && $registered === $value) {
+			if ( \is_string( $registered ) && \is_string( $value ) && $registered === $value ) {
 				return;
 			}
 
-			if (\is_object($registered) && \is_object($value) && \get_class($registered) === \get_class($value)) {
+			if ( \is_object( $registered ) && \is_object( $value ) && \get_class( $registered ) === \get_class( $value ) ) {
 				return;
 			}
 		}
